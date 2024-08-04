@@ -11,6 +11,7 @@ contract Validator is ReentrancyGuard, Ownable {
     string public symbol = "ValidatorNetork";
 
     uint256 public totalDeposit;
+    uint256 public dailyTokenAmount;
 
     mapping(address => uint256) private depositTime;
     mapping(address => uint256) private depositAmount;
@@ -18,12 +19,17 @@ contract Validator is ReentrancyGuard, Ownable {
     event Deposit(address indexed depositer, uint256 amount);
     event Withdraw(address indexed withdrawer, uint256 amount);
     
-    constructor(address _treasuryToken) Ownable(msg.sender) {
+    constructor(address _treasuryToken, uint256 _dailyTokenAmount) Ownable(msg.sender) {
         treasuryToken = IERC20(_treasuryToken);
+        dailyTokenAmount = _dailyTokenAmount;
     }
 
     function setTreasuryToken(address _treasuryToken) onlyOwner public {
         treasuryToken = IERC20(_treasuryToken);
+    }
+
+    function setDailyTokenAmount(uint256 _dailyTokenAmount) onlyOwner public {
+        dailyTokenAmount = _dailyTokenAmount;
     }
 
     function deposit(uint256 amount) public {
@@ -32,8 +38,13 @@ contract Validator is ReentrancyGuard, Ownable {
 
         treasuryToken.transferFrom(msg.sender, address(this), amount);
         totalDeposit += amount;
+        uint256 timestamp = block.timestamp;
+        uint256 daily = (timestamp - depositTime[msg.sender]) / 1 days;
+        if (daily * dailyTokenAmount > depositAmount[msg.sender]) {
+            depositAmount[msg.sender] = 0;
+        }
         depositAmount[msg.sender] += amount;
-        depositTime[msg.sender] = block.timestamp;
+        depositTime[msg.sender] = timestamp;
 
         emit Deposit(msg.sender, amount);
     }
@@ -41,18 +52,24 @@ contract Validator is ReentrancyGuard, Ownable {
     function withdraw(uint256 amount) onlyOwner public {
         require(totalDeposit >= amount, "amount should be less than total deposit amount");
         treasuryToken.transfer(msg.sender, amount);
+        totalDeposit -= amount;
         emit Withdraw(msg.sender, amount);
     }
 
     function checkValidator(address account) public view returns (
-        uint256 amount, uint256 lastDepositTime, bool bDeposit) {
+        uint256 amount, uint256 lastDepositTime, uint256 nCheckVal) {
         amount = depositAmount[account];
         lastDepositTime = depositTime[account];
-        if (amount > 0) {
-            bDeposit = true;
+        uint256 timestamp = block.timestamp;
+        uint256 daily = (timestamp - lastDepositTime) / 1 days;
+        if (lastDepositTime == 0) {
+            nCheckVal = 0;
+        }
+        else if (daily * dailyTokenAmount > amount) {
+            nCheckVal = 1;
         }
         else {
-            bDeposit = false;
+            nCheckVal = 2;
         }
     }
 }
