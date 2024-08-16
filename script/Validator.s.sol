@@ -6,7 +6,7 @@ import {Validator} from "../src/Validator.sol";
 
 contract ValidatorScript is Script {
 
-    address internal constant treasuryToken = 0x7b7958d29C37522B3970211C4b72662Dd18b01DA;
+    address internal constant treasuryToken = 0x43E309117Aa5D4681d9788dBb359A802d52961dC;
     uint256 internal constant dailyTokenAmount = 100 * 1e18;
     function setUp() public {}
 

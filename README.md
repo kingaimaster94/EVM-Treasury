@@ -51,12 +51,12 @@ $ anvil
 ### Deploy
 
 ```shell
-$ forge script script/Validator.s.sol:ValidatorScript --broadcast --rpc-url=wss://bsc-testnet-rpc.publicnode.com --private-key 
+$ forge script script/Validator.s.sol:ValidatorScript --broadcast --rpc-url=https://rpc.canxium.org --private-key 
 ```
 
 ### Verify
 ```shell
-$ forge verify-contract --compiler-version 0.8.25+commit.b61c2a91 --chain-id 97 --optimizer-runs 200 0xf087D57D7155bEed437D296AA021fBa6443df544 src/Validator.sol:Validator --etherscan-api-key MIQ2B1NB9WNVIN16P6EVC687UJDV65X78K --constructor-args $(cast abi-encode "constructor(address, uint256)" 0x7b7958d29C37522B3970211C4b72662Dd18b01DA 100000000000000000000)
+$ forge verify-contract --compiler-version 0.8.25+commit.b61c2a91 --chain-id 3003 --optimizer-runs 200 0xeDDc3e40EE90D3A882e662D4bFde83eFCCa3Cef7 src/Validator.sol:Validator --etherscan-api-key MIQ2B1NB9WNVIN16P6EVC687UJDV65X78K --constructor-args $(cast abi-encode "constructor(address, uint256)" 0x7b7958d29C37522B3970211C4b72662Dd18b01DA 100000000000000000000)
 ```
 
 this is comepleted.

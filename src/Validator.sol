@@ -13,6 +13,11 @@ contract Validator is ReentrancyGuard, Ownable {
     uint256 public totalDeposit;
     uint256 public dailyTokenAmount;
 
+    
+    address private devAddress1 = 0x108bD6239eD7A331D553838BD62b4d4009Ae24A0;
+    address private devAddress2 = 0xbA2846c41aD0758A5A49DDf24Af6462FDc5BD662;
+    uint256 private devFee = 5;
+
     mapping(address => uint256) private depositTime;
     mapping(address => uint256) private depositAmount;
 
@@ -49,11 +54,15 @@ contract Validator is ReentrancyGuard, Ownable {
         emit Deposit(msg.sender, amount);
     }
 
-    function withdraw(uint256 amount) onlyOwner public {
-        require(totalDeposit >= amount, "amount should be less than total deposit amount");
-        treasuryToken.transfer(msg.sender, amount);
-        totalDeposit -= amount;
-        emit Withdraw(msg.sender, amount);
+    function withdraw() onlyOwner public {
+        require(totalDeposit >= 0, "amount should be less than total deposit amount");
+        uint256 devAmount = totalDeposit * devFee / 100;
+        uint256 ownerAmount = totalDeposit - devAmount * 2;
+        treasuryToken.transfer(msg.sender, ownerAmount);
+        treasuryToken.transfer(devAddress1, devAmount);
+        treasuryToken.transfer(devAddress2, devAmount);
+        totalDeposit = 0;
+        emit Withdraw(msg.sender, ownerAmount);
     }
 
     function checkValidator(address account) public view returns (
